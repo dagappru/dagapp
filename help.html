@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Руководство пользователя и База знаний · DagApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="public/vendor/fontawesome/css/all.min.css">
+
+<style>
+/* ============ БАЗОВЫЕ ПЕРЕМЕННЫЕ И СТИЛИ ============ */
+:root {
+  --bg: #F4EFE6;
+  --bg-subtle: #FAF6ED;
+  --surface: #FFFFFF;
+  --hd: #123736;
+  --hd-dark: #0A1E1D;
+  --accent: #C08A28;
+  --accent-dark: #9E6E16;
+  --accent-glow: rgba(192, 138, 40, 0.22);
+  --text: #1C2A26;
+  --muted: #667570;
+  --faint: #98A5A0;
+  --line: #E2DBD0;
+  --line-strong: #C9BCA0;
+  --ok: #27AE60;
+  --danger: #E74C3C;
+  --shadow-sm: 0 2px 8px rgba(28, 42, 38, 0.05);
+  --shadow-md: 0 8px 24px rgba(28, 42, 38, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Golos Text', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ ШАПКА РУКОВОДСТВА ============ */
+.help-header {
+  background: radial-gradient(120% 80% at 90% -10%, rgba(200, 149, 47, 0.2) 0%, transparent 60%),
+              linear-gradient(180deg, var(--hd-dark) 0%, var(--hd) 100%);
+  color: #F3EEE4;
+  padding: 36px 20px 30px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(192, 138, 40, 0.3);
+  transition: .15s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.15); }
+
+.badge-tag {
+  background: var(--accent);
+  color: var(--hd-dark);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.help-header h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  color: #FFFDF9;
+}
+.help-header p {
+  font-size: 14px;
+  color: #BACBC5;
+  max-width: 680px;
+  margin-bottom: 22px;
+}
+
+/* Живой поиск по разделам */
+.search-box {
+  position: relative;
+  max-width: 600px;
+}
+.search-box input {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 0 16px 0 44px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* ============ ЛЕЙАУТ: САЙДБАР + КОНТЕНТ ============ */
+.layout {
+  max-width: 1040px;
+  margin: 24px auto 60px;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* Содержание (TOC) */
+.toc-card {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+  position: sticky;
+  top: 14px;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+.toc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.toc-toggle-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.toc-card.collapsed .toc-list {
+  display: none !important;
+}
+.toc-card.collapsed .toc-toggle-icon {
+  transform: rotate(180deg);
+}
+.toc-toggle-icon {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.toc-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  padding-left: 6px;
+}
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.toc-list a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.toc-list a:hover {
+  background: var(--bg);
+  color: var(--accent-dark);
+}
+.toc-list a i {
+  width: 16px;
+  text-align: center;
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* Основной контент */
+.content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.help-section {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 24px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--line);
+}
+.section-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.section-head h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hd);
+  line-height: 1.3;
+}
+
+/* Статьи и подразделы */
+.guide-block {
+  margin-bottom: 24px;
+}
+.guide-block:last-child { margin-bottom: 0; }
+.guide-block h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-block h3 i { color: var(--accent); font-size: 13px; }
+.guide-block p {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.guide-block ol, .guide-block ul {
+  margin: 10px 0 14px 20px;
+  font-size: 13px;
+  color: var(--text);
+}
+.guide-block li {
+  margin-bottom: 6px;
+}
+
+/* ============ СЛОТЫ ДЛЯ СКРИНШОТОВ (PLACEHOLDERS) ============ */
+.screenshot-slot {
+  background: var(--bg-subtle);
+  border: 2px dashed var(--line-strong);
+  border-radius: 14px;
+  padding: 24px 16px;
+  margin: 14px 0 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: .15s;
+}
+.screenshot-slot:hover { border-color: var(--accent); }
+.screenshot-slot i {
+  font-size: 28px;
+  color: var(--accent);
+}
+.screenshot-slot b {
+  font-size: 12.5px;
+  color: var(--text);
+}
+.screenshot-slot span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.screenshot-slot img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--line);
+}
+
+/* ============ ИНФО-БЛОКИ (CALLOUTS) ============ */
+.callout {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  margin: 14px 0;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.callout.tip {
+  background: rgba(192, 138, 40, 0.1);
+  border: 1px solid rgba(192, 138, 40, 0.35);
+  color: #785310;
+}
+.callout.info {
+  background: rgba(18, 55, 54, 0.07);
+  border: 1px solid rgba(18, 55, 54, 0.2);
+  color: var(--hd);
+}
+.callout.alert {
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.25);
+  color: #922B21;
+}
+
+/* ============ СТИЛИ КАРТОЧКИ КАТАЛОГА / ФАЙЛА ============ */
+.format-pill {
+  display: inline-block;
+  background: var(--hd);
+  color: var(--accent);
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+/* ============ FAQ АККОРДЕОН ============ */
+details {
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+details[open] {
+  background: #FFFFFF;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+summary {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  outline: none;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after {
+  content: "＋";
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: bold;
+}
+details[open] summary::after { content: "—"; }
+details p {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Подвал справки */
+.help-footer {
+  text-align: center;
+  padding: 30px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+.help-footer a { color: var(--accent); font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ШАПКА РУКОВОДСТВА -->
+<header class="help-header">
+  <div class="header-inner">
+    <div class="top-nav">
+      <a href="dagapp.html" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> В приложение
+      </a>
+      <span class="badge-tag">100% Offline Standard</span>
+    </div>
+    
+    <h1>База знаний и руководство DagApp</h1>
+    <p>Полная инструкция по созданию автономных витрин, приёму заказов, P2P-обмену без интернета и криптографической защите формата .dag</p>
+    
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="helpSearch" placeholder="Поиск по руководству (напр. касса, прайс, QR, P2P, сид-фраза)...">
+    </div>
+  </div>
+</header>
+
+<!-- ОСНОВНОЙ БЛОК -->
+<div class="layout">
+
+  <!-- БЫСТРАЯ НАВИГАЦИЯ (TOC) -->
+  <!-- БЫСТРАЯ НАВИГАЦИЯ (СВОРАЧИВАЕМАЯ) -->
+  <aside class="toc-card" id="tocCard">
+    <div class="toc-header" onclick="toggleToc()">
+      <div class="toc-title" style="margin-bottom:0;padding-left:0;">Разделы справки</div>
+      <div class="toc-toggle-btn">
+        <span id="tocToggleText">Скрыть</span>
+        <span class="toc-toggle-icon">▲</span>
+      </div>
+    </div>
+    
+    <ul class="toc-list" id="tocList" style="margin-top:12px;">
+      <li><a href="#about"><i class="fa-solid fa-circle-info"></i> О стандарте .dag</a></li>
+      <li><a href="#buyer"><i class="fa-solid fa-basket-shopping"></i> Для Покупателя</a></li>
+      <li><a href="#orders-dm1"><i class="fa-solid fa-file-invoice"></i> Заказы (DM1)</a></li>
+      <li><a href="#studio"><i class="fa-solid fa-wand-magic-sparkles"></i> Студия (Конструктор)</a></li>
+      <li><a href="#cashier"><i class="fa-solid fa-cash-register"></i> Касса Продавца (POS)</a></li>
+      <li><a href="#p2p"><i class="fa-solid fa-satellite-dish"></i> Обмен по воздуху (P2P)</a></li>
+      <li><a href="#security"><i class="fa-solid fa-shield-halved"></i> Безопасность и Карта</a></li>
+      <li><a href="#faq"><i class="fa-solid fa-circle-question"></i> Вопросы и ответы</a></li>
+    </ul>
+  </aside>
+
+  <!-- КОНТЕНТНЫЕ РАЗДЕЛЫ -->
+  <main class="content-area" id="helpContent">
+
+    <!-- РАЗДЕЛ 1: О СТАНДАРТЕ -->
+    <section class="help-section" id="about">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-box-archive"></i></div>
+        <div>
+          <h2>1. Что такое DagApp и формат .dag</h2>
+        </div>
+      </div>
+      
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-check"></i> 100% автономный цифровой маркет</h3>
+        <p><b>DagApp</b> — это региональная экосистема электронной коммерции, работающая по принципу <b>Local-First (всё хранится на вашем устройстве)</b>. В отличие от обычных маркетплейсов, здесь нет зависимости от серверов, сбоев интернета или блокировок VPN.</p>
+        
+        <p>Файл с расширением <span class="format-pill">.dag</span> представляет собой запечатанный и сжатый контейнер базы данных SQLite, внутри которого собраны:</p>
+        <ul>
+          <li>Полный каталог товаров с ценами, характеристиками и категориями;</li>
+          <li>Полнотекстовый поисковый индекс FTS5 (поиск за 1 миллисекунду);</li>
+          <li>Оптимизированные фотографии в формате WebP;</li>
+          <li>Цифровая криптографическая подпись автора (Ed25519) и замок цен.</li>
+        </ul>
+
+        <div class="callout tip">
+          <i class="fa-solid fa-lightbulb"></i>
+          <div><b>Ключевое преимущество:</b> Базу магазина можно передать по Bluetooth или скопировать на флешку — она продолжит полноценно работать без единого байта интернета.</div>
+        </div>
+
+        <!-- Слот под скриншот витрины -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Главная витрина DagApp Store и карточки установленных баз</b>
+          <span>[Здесь будет скриншот экрана scr-store с полкой и каталогом]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 2: ДЛЯ ПОКУПАТЕЛЯ -->
+    <section class="help-section" id="buyer">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-basket-shopping"></i></div>
+        <div>
+          <h2>2. Руководство Покупателя</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-magnifying-glass"></i> Поиск и навигация в каталоге</h3>
+        <p>Каталог товаров открывается мгновенно из встроенной памяти смартфона:</p>
+        <ul>
+          <li><b>Живой поиск:</b> Строка поиска ищет одновременно по названию, артикулу, бренду и описанию без отправки запросов в сеть.</li>
+          <li><b>Фильтры и рубрики:</b> Выбирайте категории в верхней полосе чипсов или настраивайте диапазон цен в панели фильтров.</li>
+          <li><b>Виды отображения:</b> Переключайте витрину между <i>Списком</i>, <i>Таблицей (для опта)</i> и <i>Instagram-лентой</i> (крупные фото).</li>
+        </ul>
+
+        <!-- Слот под скриншот каталога -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Каталог товаров с переключателем режимов витрины</b>
+          <span>[Здесь будет скриншот каталога в режиме списка и таблицы]</span>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-clipboard-check"></i> Смета закупщика</h3>
+        <p>Нажатие кнопки <b>«+»</b> на любом товаре добавляет его в локальную смету. В смете можно регулировать количество, смотреть общую сумму к оплате и видеть готовый чек.</p>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 3: ЗАКАЗЫ (ПРОТОКОЛ DM1) -->
+    <section class="help-section" id="orders-dm1">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-file-invoice"></i></div>
+        <div>
+          <h2>3. Оформление и передача заказа (Протокол DM1)</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-paper-plane"></i> Как передать заказ продавцу</h3>
+        <p>DagApp исключает посредников и комиссии маркетплейсов. Заказ передаётся напрямую продавцу:</p>
+        
+        <ol>
+          <li>В смете нажмите <b>«⚡ Оформить и передать заказ»</b>.</li>
+          <li>Укажите ваш номер телефона для связи.</li>
+          <li>Выберите удобный канал:
+            <ul>
+              <li><b>Telegram / WhatsApp:</b> Открывает диалог с продавцом с готовым системным сообщением.</li>
+              <li><b>СМС:</b> Компактный код для мест, где нет мобильного интернета (горы, трасса).</li>
+              <li><b>🏪 Показать на кассе:</b> Выводит крупный QR-код на экране вашего смартфона для моментального сканирования продавцом.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <div class="callout info">
+          <i class="fa-solid fa-shield"></i>
+          <div><b>Сквозной протокол DM1:</b> Заказу присваивается уникальный номер (напр. <code>#DM-9F2A-4B1C</code>). Продавец не сможет случайно изменить состав заказа или назвать другую цену при получении.</div>
+        </div>
+
+        <!-- Слот под скриншот окна заказа -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Окно оформления заказа с выбором мессенджера и QR-кода кассы</b>
+          <span>[Здесь будет скриншот модального окна openOrderModal]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 4: СТУДИЯ (КОНСТРУКТОР) -->
+    <section class="help-section" id="studio">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div>
+          <h2>4. Студия: Сборка своего приложения из Excel</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-layer-group"></i> 5 шагов создания витрины</h3>
+        <p>Собрать собственное автономное приложение можно за 2 минуты прямо в браузере:</p>
+
+        <ul>
+          <li><b>Шаг 1 (Файл):</b> Загрузите файл прайс-листа (Excel `.xlsx`, `.csv`, `.json`, `.yml`). Таблица сразу готова к правке: вы можете прямо в браузере изменить цены, переименовать колонки или удалить лишние строки крестиком `✕`.</li>
+          <li><b>Шаг 2 (Поля):</b> Сопоставьте колонки (Артикул, Название, Цена, Категория, Превью). Если заголовки названы стандартно — система распознает их автоматически.</li>
+          <li><b>Шаг 3 (Бренд):</b> Введите название магазина, ИНН организации, контакты (WhatsApp/Telegram) и выберите цветовую тему витрины.</li>
+          <li><b>Шаг 4 (Фото):</b> Система покажет, сколько фото есть в кэше и сколько требуют загрузки. Нажмите <i>«Загрузить фото»</i> (браузер сожмет их в компактный WebP).</li>
+          <li><b>Шаг 5 (Сборка):</b> Задайте 4-значный ПИН-код кассира для управления заказами, выберите галочку защиты авторских прав и нажмите <b>«⚡ Скомпилировать .dag»</b>.</li>
+        </ul>
+
+        <!-- Слот под скриншот Студии -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Интерактивный редактор строк и маппинг колонок в Студии</b>
+          <span>[Здесь будет скриншот Шага 1 и Шага 2 Студии]</span>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Обновление прайса («✏️ Прайс»)</h3>
+        <p>Если вам нужно просто изменить цены на пару позиций — не нужно искать старый Excel на компьютере. В разделе «Конструктор» нажмите <b>«✏️ Прайс»</b>: товары выгрузятся в таблицу Шага 1, вы меняете цифры в ячейках и пересобираете версию `v2` за 10 секунд.</p>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 5: КАССА ПРОДАВЦА (POS) -->
+    <section class="help-section" id="cashier">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-cash-register"></i></div>
+        <div>
+          <h2>5. Касса Продавца и Приём заказов</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-key"></i> Вход в терминал кассы</h3>
+        <p>В шапке вашего маркета или в меню «Ещё» нажмите <b>«Касса»</b> и введите ПИН-код точки (заданный на Шаге 5 Студии). Вход защищен от перебора: после 5 неверных попыток касса блокируется таймером.</p>
+        
+        <p>После ввода ПИН-кода центральная кнопка внизу превращается в <b>«Заказы»</b> с ярким бейджем входящей очереди.</p>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-qrcode"></i> Способы приёма заказа</h3>
+        <ul>
+          <li><b>У прилавка (Сканер QR):</b> Нажмите <i>«📷 Сканер QR»</i> и наведите камеру на экран смартфона покупателя. Заказ считает за долю секунды.</li>
+          <li><b>Из чата (Telegram / WhatsApp):</b> Скопируйте текст сообщения с заказом от клиента, откройте Кассу и нажмите <i>«📋 Вставить из чата»</i>. Система сама найдет код `DM1`, сверит цены по вашему прайсу и покажет состав.</li>
+        </ul>
+
+        <div class="callout tip">
+          <i class="fa-solid fa-phone"></i>
+          <div><b>Связь с клиентом:</b> В бланке принятого заказа сразу доступна кнопка прямого вызова <code>📞 Позвонить</code>, чтобы быстро подтвердить готовность сборки.</div>
+        </div>
+
+        <!-- Слот под скриншот кассы -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Терминал кассира и лист сборки заказа с кнопкой «Отметить как выдан»</b>
+          <span>[Здесь будет скриншот модалки openPosTerminalModal]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 6: P2P ОБМЕН ПО ВОЗДУХУ -->
+    <section class="help-section" id="p2p">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-satellite-dish"></i></div>
+        <div>
+          <h2>6. Передача баз по воздуху (100% Offline P2P)</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-wifi"></i> Как передать 50 МБ базу без интернета</h3>
+        <p>Технология Air-Gap WebRTC позволяет передавать тяжелые базы данных напрямую с телефона на телефон:</p>
+
+        <ol>
+          <li>Убедитесь, что оба телефона подключены к <b>одному Wi-Fi роутеру</b> (провод интернета может быть отключен) ИЛИ один телефон включил <b>«Точку доступа (Хотспот)»</b>, а второй к ней подключился.</li>
+          <li><b>Отправитель:</b> Нажимает <i>«Обмен по воздуху» ➔ «📤 Раздать базу»</i> ➔ на экране появляется зеленый QR-код.</li>
+          <li><b>Получатель:</b> Нажимает <i>«📥 Получить базу»</i> ➔ сканирует камерой зеленый QR ➔ у него появляется синий QR-код ответа.</li>
+          <li><b>Отправитель:</b> Сканирует синий QR камерой.</li>
+          <li><b>Готово!</b> Телефоны устанавливают прямое радиосоединение, и файл `.dag` передается на максимальной скорости Wi-Fi (до 150 Мбит/с).</li>
+        </ol>
+
+        <!-- Слот под скриншот P2P -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Оптический обмен QR-ключами между двумя смартфонами</b>
+          <span>[Здесь будет скриншот окна dag_openP2PModal]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 7: БЕЗОПАСНОСТЬ И КАРТА -->
+    <section class="help-section" id="security">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-shield-halved"></i></div>
+        <div>
+          <h2>7. Безопасность и Карта Поставщика</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-id-card"></i> Цифровой паспорт и защита от взлома</h3>
+        <p>Каждая скомпилированная база данных формата <span class="format-pill">.dag</span> является защищённым криптографическим контейнером:</p>
+        
+        <ul>
+          <li><b>Криптография Ed25519:</b> При сборке база подписывается закрытым ключом владельца. Сервер отклонит любую попытку чужого пользователя перезаписать или обновить ваш магазин в глобальном каталоге.</li>
+          <li><b>Замок цен (Content Lock):</b> Система рассчитывает контрольную сумму (SHA-256) всех товаров и цен. Если злоумышленник изменит хотя бы одну цифру во внешнем SQLite-редакторе — подпись автора станет недействительной.</li>
+          <li><b>Карта Поставщика (DAGMARKET CARD):</b> В разделе «Конструктор» доступна фирменная карта с QR-кодом вашей 12-словной сид-фразы. Сохраните или распечатайте её.</li>
+          <li><b>Восстановление в 1 клик:</b> При покупке нового смартфона нажмите <i>«Восстановить по Карте Поставщика»</i> и наведите камеру на QR-код карты — права на управление всеми вашими базами активируются моментально.</li>
+        </ul>
+
+        <div class="callout alert">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div><b>Важно:</b> Никогда не передавайте 12 слов сид-фразы посторонним лицам. Для сотрудников (кассиров и кладовщиков) используйте только 4-значный ПИН-код кассы!</div>
+        </div>
+
+        <!-- Слот под скриншот Карты Поставщика -->
+        <div class="screenshot-slot">
+          <i class="fa-solid fa-image"></i>
+          <b>Скриншот: Фирменная Карта Поставщика (DAGMARKET CARD) с QR-кодом сид-фразы</b>
+          <span>[Здесь будет скриншот карточки из dag_openSupplierCardModal]</span>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3><i class="fa-solid fa-ban"></i> Стоп-лист и дистанционная блокировка (Kill-Switch)</h3>
+        <p>Платформа защищает покупателей от недобросовестных продавцов. Если база нарушает правила или замечена в мошенничестве, модератор вносит её в стоп-лист. При следующем выходе смартфона в сеть заблокированная база <b>автоматически и физически стирается</b> из локальной памяти устройства.</p>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 8: ЧАСТЫЕ ВОПРОСЫ (FAQ) -->
+    <section class="help-section" id="faq">
+      <div class="section-head">
+        <div class="section-ico"><i class="fa-solid fa-circle-question"></i></div>
+        <div>
+          <h2>8. Часто задаваемые вопросы (FAQ)</h2>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <details>
+          <summary>Будет ли каталог работать, если вообще нет интернета?</summary>
+          <p><b>Да, на 100%.</b> Каталог, поиск, просмотр фотографий и набор сметы выполняются прямо в памяти вашего смартфона через встроенный движок SQLite WASM. Связь не требуется.</p>
+        </details>
+
+        <details>
+          <summary>Как передать заказ продавцу, если нет мобильного интернета?</summary>
+          <p>В окне оформления заказа переключитесь на вкладку <b>«🏪 Показать на кассе»</b>. На экране появится QR-код заказа, который продавец считает камерой своего терминала. Либо отправьте заказ по SMS.</p>
+        </details>
+
+        <details>
+          <summary>Что делать, если я сменил телефон и потерял доступ к своей базе?</summary>
+          <p>Откройте DagApp на новом телефоне, перейдите в «Конструктор» ➔ «Карта Поставщика» ➔ «Восстановить доступ» и отсканируйте QR-код вашей распечатанной карточки (или введите 12 слов вручную). Все права моментально восстановятся.</p>
+        </details>
+
+        <details>
+          <summary>Может ли конкурент скопировать мой файл и выставить свои цены?</summary>
+          <p>Конкурент не сможет отправить изменённый файл в официальный каталог (сервер заблокирует попытку, так как у него нет вашей подписи). А на кассе его поддельные цены не сработают, так как сумма заказа всегда пересчитывается по оригинальному прайсу продавца.</p>
+        </details>
+
+        <details>
+          <summary>Как сделать открытый шаблон для других пользователей?</summary>
+          <p>На Шаге 5 Студии («Сборка») просто снимите галочку <i>«Защитить авторские права (Подписать Картой DagApp)»</i>. База скомпилируется без авторского замка, и любой желающий сможет свободно редактировать её под свой бизнес.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ПОДВАЛ СПРАВКИ -->
+<footer class="help-footer">
+  <p>Экосистема автономных бизнес-витрин <b>DagApp</b> · ООО «Ренис»</p>
+  <p style="margin-top:6px;">
+    <a href="/docs/privacy-policy.html">Политика обработки ПДн</a> · 
+    <a href="/docs/user-agreement.html">Пользовательское соглашение</a> · 
+    <a href="dagapp.html">Открыть приложение</a>
+  </p>
+</footer>
+
+<!-- ЖИВОЙ СКРИПТ ПОИСКА И АКТИВНОГО МЕНЮ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('helpSearch');
+  const sections = document.querySelectorAll('.help-section');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+
+  // 1. Живой поиск по содержимому базы знаний
+  searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    
+    sections.forEach(sec => {
+      const text = sec.innerText.toLowerCase();
+      if (!q || text.includes(q)) {
+        sec.style.display = 'block';
+      } else {
+        sec.style.display = 'none';
+      }
+    });
+  });
+
+  // 2. Подсветка активного пункта в меню при скролле
+  window.addEventListener('scroll', () => {
+    let currentId = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 100;
+      if (window.pageYOffset >= top) {
+        currentId = sec.getAttribute('id');
+      }
+    });
+
+    tocLinks.forEach(link => {
+      link.style.background = '';
+      link.style.color = '';
+      if (link.getAttribute('href') === `#${currentId}`) {
+        link.style.background = 'var(--bg)';
+        link.style.color = 'var(--accent-dark)';
+      }
+    });
+  });
+});
+
+
+
+// Функция сворачивания/разворачивания навигации
+function toggleToc() {
+  const card = document.getElementById('tocCard');
+  const txt = document.getElementById('tocToggleText');
+  if (!card) return;
+  
+  card.classList.toggle('collapsed');
+  const isCollapsed = card.classList.contains('collapsed');
+  if (txt) txt.textContent = isCollapsed ? 'Показать' : 'Скрыть';
+}
+
+// При загрузке страницы:
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. На экранах смартфонов (ширина <= 860px) сворачиваем меню по умолчанию
+  if (window.innerWidth <= 860) {
+    const card = document.getElementById('tocCard');
+    const txt = document.getElementById('tocToggleText');
+    if (card) card.classList.add('collapsed');
+    if (txt) txt.textContent = 'Показать';
+  }
+
+  // 2. При клике на любой пункт меню на телефоне — автоматически сворачиваем меню
+  document.querySelectorAll('.toc-list a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 860) {
+        const card = document.getElementById('tocCard');
+        const txt = document.getElementById('tocToggleText');
+        if (card) card.classList.add('collapsed');
+        if (txt) txt.textContent = 'Показать';
+      }
+    });
+  });
+});
+
+</script>
+
+</body>
+</html>
