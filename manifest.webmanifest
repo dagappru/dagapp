@@ -1,1 +1,1 @@
-{"name":"DagApp","short_name":"DagApp","description":"Приложение DagApp","start_url":".","display":"standalone","background_color":"#FFFFFF","theme_color":"#000000","lang":"en","scope":"/","icons":[{"src":"/logo.png","sizes":"192x192","type":"image/png"}]}
+{"name":"DagApp","short_name":"DagApp","description":"Приложение DagApp","start_url":".","display":"standalone","background_color":"#FFFFFF","theme_color":"#000000","lang":"en","scope":"/","icons":[{"src":"/dagapp/logo.png","sizes":"192x192","type":"image/png"}]}
